@@ -1,210 +1,181 @@
-import * as React from 'react';
-import deepmerge from 'deepmerge';
-import { Components } from 'react-markdown';
 import {
+  Alert,
+  Box,
   Code,
   Divider,
   Heading,
+  Image,
   Link,
-  ListItem,
-  OrderedList,
   Text,
-  UnorderedList,
-} from '@chakra-ui/layout';
-import { Image } from '@chakra-ui/image';
-import { Checkbox } from '@chakra-ui/checkbox';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
-import { chakra } from '@chakra-ui/system';
+  useColorMode,
+} from '@chakra-ui/react';
+import NextLink from 'next/link';
 
-type GetCoreProps = {
-  children?: React.ReactNode;
-  'data-sourcepos'?: any;
+const CustomImage = (props: any) => {
+  return (
+    <Image
+      width={props.width}
+      height={props.height}
+      src={props.src}
+      alt={props.alt}
+      my={6}
+    />
+  );
 };
 
-function getCoreProps(props: GetCoreProps): any {
-  return props['data-sourcepos']
-    ? { 'data-sourcepos': props['data-sourcepos'] }
-    : {};
-}
-
-interface Defaults extends Components {
-  /**
-   * @deprecated Use `h1, h2, h3, h4, h5, h6` instead.
-   */
-  heading?: Components['h1'];
-}
-
-export const defaults: Defaults = {
-  p: props => {
-    const { children } = props;
-    return <Text mb={2}>{children}</Text>;
-  },
-  em: props => {
-    const { children } = props;
-    return <Text as="em">{children}</Text>;
-  },
-  blockquote: props => {
-    const { children } = props;
-    return (
-      <Code as="blockquote" p={2}>
-        {children}
-      </Code>
-    );
-  },
-  code: props => {
-    const { inline, children, className } = props;
-
-    if (inline) {
-      return <Code p={2} children={children} />;
-    }
-
-    return (
-      <Code
-        className={className}
-        whiteSpace="break-spaces"
-        display="block"
-        w="full"
-        p={2}
-        children={children}
-      />
-    );
-  },
-  del: props => {
-    const { children } = props;
-    return <Text as="del">{children}</Text>;
-  },
-  hr: props => {
-    return <Divider />;
-  },
-  a: Link,
-  img: Image,
-  text: props => {
-    const { children } = props;
-    return <Text as="span">{children}</Text>;
-  },
-  ul: props => {
-    const { ordered, children, depth } = props;
-    const attrs = getCoreProps(props);
-    let Element = UnorderedList;
-    let styleType = 'disc';
-    if (ordered) {
-      Element = OrderedList;
-      styleType = 'decimal';
-    }
-    if (depth === 1) styleType = 'circle';
-    return (
-      <Element
-        spacing={2}
-        as={ordered ? 'ol' : 'ul'}
-        styleType={styleType}
-        pl={4}
-        {...attrs}
-      >
-        {children}
-      </Element>
-    );
-  },
-  ol: props => {
-    const { ordered, children, depth } = props;
-    const attrs = getCoreProps(props);
-    let Element = UnorderedList;
-    let styleType = 'disc';
-    if (ordered) {
-      Element = OrderedList;
-      styleType = 'decimal';
-    }
-    if (depth === 1) styleType = 'circle';
-    return (
-      <Element
-        spacing={2}
-        as={ordered ? 'ol' : 'ul'}
-        styleType={styleType}
-        pl={4}
-        {...attrs}
-      >
-        {children}
-      </Element>
-    );
-  },
-  li: props => {
-    const { children, checked } = props;
-    let checkbox = null;
-    if (checked !== null && checked !== undefined) {
-      checkbox = (
-        <Checkbox isChecked={checked} isReadOnly>
-          {children}
-        </Checkbox>
-      );
-    }
-    return (
-      <ListItem
-        {...getCoreProps(props)}
-        listStyleType={checked !== null ? 'none' : 'inherit'}
-      >
-        {checkbox || children}
-      </ListItem>
-    );
-  },
-  heading: props => {
-    const { level, children } = props;
-    const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
-    return (
-      <Heading
-        my={4}
-        as={`h${level}`}
-        size={sizes[`${level - 1}`]}
-        {...getCoreProps(props)}
-      >
-        {children}
-      </Heading>
-    );
-  },
-  pre: props => {
-    const { children } = props;
-    return <chakra.pre {...getCoreProps(props)}>{children}</chakra.pre>;
-  },
-  table: Table,
-  thead: Thead,
-  tbody: Tbody,
-  tr: props => <Tr>{props.children}</Tr>,
-  td: props => <Td>{props.children}</Td>,
-  th: props => <Th>{props.children}</Th>,
-};
-
-function ChakraUIRenderer(theme?: Defaults, merge = true): Components {
-  const elements = {
-    p: defaults.p,
-    em: defaults.em,
-    blockquote: defaults.blockquote,
-    code: defaults.code,
-    del: defaults.del,
-    hr: defaults.hr,
-    a: defaults.a,
-    img: defaults.img,
-    text: defaults.text,
-    ul: defaults.ul,
-    ol: defaults.ol,
-    li: defaults.li,
-    h1: defaults.heading,
-    h2: defaults.heading,
-    h3: defaults.heading,
-    h4: defaults.heading,
-    h5: defaults.heading,
-    h6: defaults.heading,
-    pre: defaults.pre,
-    table: defaults.table,
-    thead: defaults.thead,
-    tbody: defaults.tbody,
-    tr: defaults.tr,
-    td: defaults.td,
-    th: defaults.th,
+const CustomLink = (props: any) => {
+  const { colorMode } = useColorMode();
+  const color = {
+    light: 'brand.500',
+    dark: 'brand.500',
   };
 
-  if (theme && merge) {
-    return deepmerge(elements, theme);
+  const href = props.href;
+  const isInternalLink = href && (href.startsWith('/') || href.startsWith('#'));
+
+  if (isInternalLink) {
+    return (
+      <NextLink href={href} passHref>
+        <Link color={color[colorMode]} {...props} />
+      </NextLink>
+    );
   }
 
-  return elements;
-}
+  return <Link color={color[colorMode]} isExternal {...props} />;
+};
 
-export default ChakraUIRenderer;
+const Quote = (props: any) => {
+  return (
+    <Alert
+      mt={4}
+      w="98%"
+      colorScheme="brand"
+      variant="left-accent"
+      status="info"
+      css={{
+        '> *:first-of-type': {
+          marginTop: 0,
+          marginLeft: 8,
+        },
+      }}
+      {...props}
+    />
+  );
+};
+
+const DocsHeading = (props: any) => (
+  <Heading
+    css={{
+      scrollMarginTop: '100px',
+      scrollSnapMargin: '100px', // Safari
+      '&[id]': {
+        pointerEvents: 'none',
+      },
+      '&[id]:before': {
+        display: 'block',
+        height: ' 6rem',
+        marginTop: '-6rem',
+        visibility: 'hidden',
+        content: `""`,
+      },
+      '&[id]:hover a': { opacity: 1 },
+    }}
+    {...props}
+    mb="1em"
+    mt="2em"
+  >
+    <Box pointerEvents="auto">
+      {props.children}
+      {props.id && (
+        <Box
+          aria-label="anchor"
+          as="a"
+          color="blue.500"
+          fontWeight="normal"
+          outline="none"
+          _focus={{
+            opacity: 1,
+            boxShadow: 'outline',
+          }}
+          opacity="0"
+          ml="0.375rem"
+          href={`#${props.id}`}
+        >
+          #
+        </Box>
+      )}
+    </Box>
+  </Heading>
+);
+
+const Hr = () => {
+  const { colorMode } = useColorMode();
+  const borderColor = {
+    light: 'gray.200',
+    dark: 'gray.600',
+  };
+
+  return <Divider borderColor={borderColor[colorMode]} my={4} w="100%" />;
+};
+
+const MDXComponents = {
+  //eslint-disable-next-line
+  h1: (props: any) => <Heading as="h1" size="lg" my={4} {...props} />,
+  //eslint-disable-next-line
+  h2: (props: any) => (
+    <DocsHeading as="h2" size="md" fontWeight={500} {...props} />
+  ),
+  //eslint-disable-next-line
+  h3: (props: any) => (
+    <DocsHeading as="h3" size="sm" fontWeight={500} {...props} />
+  ),
+  //eslint-disable-next-line
+  h4: (props: any) => (
+    <DocsHeading as="h4" size="sm" fontWeight="bold" {...props} />
+  ),
+  //eslint-disable-next-line
+  h5: (props: any) => (
+    <DocsHeading as="h5" size="xs" fontWeight="bold" {...props} />
+  ),
+  //eslint-disable-next-line
+  h6: (props: any) => (
+    <DocsHeading as="h6" size="xs" fontWeight="bold" {...props} />
+  ),
+  //eslint-disable-next-line
+  inlineCode: (props: any) => (
+    <Code colorScheme="yellow" fontSize="0.84em" {...props} />
+  ),
+  pre: (props: any) => (
+    <Code
+      fontSize="0.84em"
+      w="100%"
+      whiteSpace="pre-wrap"
+      p={4}
+      rounded="md"
+      backgroundColor="gray.50"
+      {...props}
+    />
+  ),
+  //eslint-disable-next-line
+  br: (props: any) => <Box height="24px" {...props} />,
+  //eslint-disable-next-line
+  p: (props: any) => <Text as="p" my={4} lineHeight="tall" {...props} />,
+  //eslint-disable-next-line
+  ul: (props: any) => (
+    <Box as="ul" pt={2} pl={4} ml={2} {...props} ordered="true" />
+  ),
+  //eslint-disable-next-line
+  ol: (props: any) => (
+    <Box as="ol" pt={2} pl={4} ml={2} {...props} ordered="true" />
+  ),
+  //eslint-disable-next-line
+  li: (props: any) => <Box as="li" pb={1} {...props} ordered="true" />,
+  blockquote: Quote,
+  img: CustomImage,
+  hr: Hr,
+  a: CustomLink,
+};
+
+export { CustomLink };
+
+export default MDXComponents;
