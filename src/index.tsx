@@ -193,19 +193,7 @@ const MDXComponents = {
       </Code>
     );
   },
-  pre: (props: any) => (
-    // <Code
-    //   fontSize="0.84em"
-    //   w="100%"
-    //   whiteSpace="pre-wrap"
-    //   p={4}
-    //   rounded="md"
-    //   backgroundColor="gray.50"
-    //   {...props}
-    // />
-    // <Text>Pre</Text>
-    <CodeBlock>{props.children}</CodeBlock>
-  ),
+  pre: (props: any) => <CodeBlock>{props.children}</CodeBlock>,
   //eslint-disable-next-line
   br: (props: any) => <Box height="24px" {...props} />,
   //eslint-disable-next-line
