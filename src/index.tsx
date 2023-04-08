@@ -32,24 +32,18 @@ const CustomImage = (props: any) => {
 };
 
 const CustomLink = (props: any) => {
-  const { colorMode } = useColorMode();
-  const color = {
-    light: 'brand.500',
-    dark: 'brand.500',
-  };
-
   const href = props.href;
   const isInternalLink = href && (href.startsWith('/') || href.startsWith('#'));
 
   if (isInternalLink) {
     return (
       <NextLink href={href} passHref>
-        <Link color={color[colorMode]} {...props} />
+        <Link color="brand.500" {...props} />
       </NextLink>
     );
   }
 
-  return <Link color={color[colorMode]} isExternal {...props} />;
+  return <Link color="brand.500" isExternal {...props} />;
 };
 
 const Quote = (props: any) => {
