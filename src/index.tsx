@@ -86,7 +86,7 @@ const CodeBlock = (props: any) => {
         {hasCopied ? 'Copied!' : 'Copy'}
       </Button>
       <Box w="full" backgroundColor="gray.50" fontSize="0.85rem">
-        <Highlight>{text}</Highlight>
+        <Highlight className='code-block'>{text}</Highlight>
       </Box>
     </Box>
   );
