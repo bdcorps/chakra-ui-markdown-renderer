@@ -1,33 +1,41 @@
+import { LinkIcon } from '@chakra-ui/icons';
 import {
   Alert,
   Box,
-  Button,
-  Code,
+  Button, Code,
   Divider,
   Heading,
+  HStack,
   Image,
   Link,
+  LinkBox,
+  LinkOverlay,
   ListItem,
   OrderedList,
   Text,
   UnorderedList,
   useClipboard,
   useColorMode,
+  VStack
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import React from 'react';
 import Highlight from 'react-highlight';
 import { encodeSlug } from './utils';
 
+// for outside for image 
 const CustomImage = (props: any) => {
   return (
-    <Image
-      width={props.width}
-      height={props.height}
-      src={props.src}
-      alt={props.alt}
-      my={6}
-    />
+    <VStack w="full" align="center">
+      <Image
+        width={props.width}
+        height={props.height}
+        src={props.src}
+        alt={props.alt}
+        my={6}
+      />
+      <Text color="gray.500" fontSize="sm">{props.alt}</Text>
+    </VStack>
   );
 };
 
@@ -38,12 +46,12 @@ const CustomLink = (props: any) => {
   if (isInternalLink) {
     return (
       <NextLink href={href} passHref>
-        <Link color="brand.500" {...props} />
+        <Link color="black" textDecoration="underline" textDecorationColor="brand.500" textUnderlineOffset="4px" {...props} />
       </NextLink>
     );
   }
 
-  return <Link color="brand.500" isExternal {...props} />;
+  return <Link color="black" textDecoration="underline" textDecorationColor="brand.500" textUnderlineOffset="4px" isExternal {...props} />;
 };
 
 const Quote = (props: any) => {
@@ -70,32 +78,38 @@ const CodeBlock = (props: any) => {
   var text = children.reduce(flatten, '');
   const { onCopy, hasCopied } = useClipboard(text);
 
+  const language = (children?.length > 0 && (children[0] as any).props > 0) ? getLanguageFromCodeBlock((children[0] as any)?.props?.className) : "language-plaintext";
+
   return (
-    <Box fontSize="0.84em" position="relative">
+    <Box fontSize="0.84em" position="relative"
+      my={{ base: 2, md: 3 }}>
       <Button
         onClick={onCopy}
-        colorScheme="brand"
-        backgroundColor="brand.300"
+        color="white"
+        backgroundColor="brand.500"
         position="absolute"
         top={3}
         right={3}
         size="xs"
-        opacity={0.8}
-        _hover={{ backgroundColor: 'brand.400', opacity: 1 }}
+        _hover={{ color: 'white', backgroundColor: 'brand.600' }}
       >
         {hasCopied ? 'Copied!' : 'Copy'}
       </Button>
-      <Box w="full" backgroundColor="gray.50" fontSize="0.85rem">
-        <Highlight className='code-block'>{text}</Highlight>
+      <Box w="full" backgroundColor="gray.50" fontSize="0.85rem" rounded="md">
+        <Highlight className={`code-block ${language}`}>{text}</Highlight>
       </Box>
     </Box>
   );
 };
 
-const flatten = (text: any, child: any): any => {
+export const flatten = (text: any, child: any): any => {
   return typeof child === 'string'
     ? text + child
     : React.Children.toArray(child.props.children).reduce(flatten, text);
+};
+
+export const getLanguageFromCodeBlock = (child: any): any => {
+  return child.props.className?.replace('language-', '');
 };
 
 const DocsHeading = (props: any) => {
@@ -103,10 +117,21 @@ const DocsHeading = (props: any) => {
   var text = children.reduce(flatten, '');
   var slug = encodeSlug(text);
 
-  return (
-    <Heading {...props} id={slug} css={{ scrollMarginTop: '100px' }}>
-      {props.children}
-    </Heading>
+  if (!text) {
+    return <></>;
+  }
+
+  return (<LinkBox as='article' role='group'>
+    <LinkOverlay href={`#${slug}`}>
+      <HStack w="full" spacing={2} align="baseline" justify="flex-start">
+        <Heading id={slug} css={{ scrollMarginTop: '24px' }}{...props}>
+          {text}
+        </Heading>
+
+        <LinkIcon display="none" _groupHover={{ display: "inline" }} />
+      </HStack>
+    </LinkOverlay>
+  </LinkBox>
   );
 };
 
@@ -128,7 +153,8 @@ const MDXComponents = {
       fontSize={{ base: '3xl', md: '4xl' }}
       my={4}
       lineHeight={1.3}
-      mb={{ base: 8, md: 10 }}
+      mb={{ base: 4, md: 4 }}
+      textAlign="left"
       {...props}
     />
   ),
@@ -139,7 +165,7 @@ const MDXComponents = {
       fontSize={{ base: 'xl', md: '2xl' }}
       fontWeight={600}
       mt={{ base: 12, md: 14 }}
-      mb={{ base: 6, md: 8 }}
+      mb={{ base: 3, md: 3 }}
       {...props}
     />
   ),
@@ -150,7 +176,7 @@ const MDXComponents = {
       fontSize={{ base: 'lg', md: 'xl' }}
       fontWeight={600}
       mt={{ base: 8, md: 10 }}
-      mb={{ base: 3, md: 4 }}
+      mb={{ base: 3, md: 3 }}
       {...props}
     />
   ),
@@ -160,28 +186,35 @@ const MDXComponents = {
       as="h4"
       fontSize={{ base: 'sm', md: 'md' }}
       fontWeight="bold"
-      mt={{ base: 6, md: 8 }}
-      mb={2}
+      mt={{ base: 2, md: 2 }}
+      mb={1}
       {...props}
     />
   ),
   //eslint-disable-next-line
   h5: (props: any) => (
-    <DocsHeading as="h5" size="xs" fontWeight="bold" {...props} />
+    <DocsHeading as="h5" size="xs" fontWeight="bold"
+      mt={{ base: 2, md: 2 }}
+      mb={1}
+      {...props} />
   ),
   //eslint-disable-next-line
   h6: (props: any) => (
-    <DocsHeading as="h6" size="xs" fontWeight="bold" {...props} />
+    <DocsHeading as="h6" size="xs" fontWeight="bold"
+      mt={{ base: 2, md: 2 }}
+      mb={1}
+      {...props} />
   ),
   //eslint-disable-next-line
   code: (props: any) => {
     return (
       <Code
-        colorScheme="brand"
+        colorScheme="gray"
         fontSize="0.84em"
-        color="brand.500"
-        backgroundColor="brand.50"
-        opacity={0.8}
+        color="gray.700"
+        border="1px"
+        borderColor="gray.100"
+        backgroundColor="gray.50"
       >
         {props.children}
       </Code>
@@ -192,24 +225,18 @@ const MDXComponents = {
   br: (props: any) => <Box height="24px" {...props} />,
   //eslint-disable-next-line
   p: (props: any) => (
-    <Text as="p" my={2} lineHeight="tall" color="gray.600" {...props} />
+    <Text as="p" my={2} lineHeight="taller" color="gray.600" {...props} />
   ),
   //eslint-disable-next-line
   ul: (props: any) => (
-    <UnorderedList as="ul" pt={2} pl={4} ml={2} {...props} ordered="true" />
+    <UnorderedList as="ul" pt={2} pl={4} ml={2} spacing={1} {...props} ordered="true" color="gray.600" />
   ),
   //eslint-disable-next-line
   ol: (props: any) => (
-    <OrderedList pt={2} pl={4} ml={2} {...props} ordered="true" />
+    <OrderedList pt={2} pl={4} ml={2} spacing={1} {...props} ordered="true" color="gray.600" />
   ),
   //eslint-disable-next-line
   li: (props: any) => <ListItem as="li" pb={1} {...props} ordered="true" />,
-
-  // ul: (props: any) => <Box>ul</Box>,
-  // //eslint-disable-next-line
-  // ol: (props: any) => <Box>ol</Box>,
-  // //eslint-disable-next-line
-  // li: (props: any) => <Box>li</Box>,
   blockquote: Quote,
   img: CustomImage,
   hr: Hr,

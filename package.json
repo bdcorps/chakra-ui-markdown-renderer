@@ -16,6 +16,7 @@
     "url": "https://github.com/bdcorps/chakra-ui-markdown-renderer"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.0",
     "deepmerge": "^4.2.2",
     "next": "^13.2.4",
     "react-highlight": "^0.15.0"
